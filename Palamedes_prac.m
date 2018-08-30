@@ -28,7 +28,7 @@ PF = @PAL_Logistic; %logistic function
 paramsValues = [0.05 50 0.5 0]; 
 paramsFree = [1 1 0 0]; %two free parameters - thresh and slope, guess and lapse are fixed
 % Curve fitting procedure
-[paramsValues LL exitflag] = PAL_PFML_Fit(StimLevels, NumPos, OutOfNum,...
+[paramsValues, LL, exitflag] = PAL_PFML_Fit(StimLevels, NumPos, OutOfNum,...
     paramsValues, paramsFree, PF); %PAL_PFML_Fit finds the best fitting parameters by way of interative 
 %search through diff possible param values
 % Graph showing data of smooth fitted function
@@ -44,4 +44,22 @@ axis([0 .12 .4 1]);
 hold on;
 plot(StimLevelsFine, Fit, 'g-', 'linewidth', 4);
 
-% Reached... estimating the errors
+% Estimating the errors
+% Bootstrapping function - simulates actual experiment repeatedly to
+% estimate SD of threshold and slope. Requires PF fitting routine to have
+% already been run
+B = 400; %how much simulated data estimated
+[SD, paramsSim, LLSim, converged] = PAL_PFML_BootstrapParametric...
+    (StimLevels, OutOfNum, paramsValues, paramsFree, B, PF); %bootstrap function, need to use the same paramsValues as estimated with PAL_PFML_Fit
+% SD output is the estimate of the errors for: [thresh slope guess lapse]
+
+% Estimating the goodness of fit
+% Determined by comparing the two models statistically
+% Outputs: Dev = deviance and pDev = goodness of fit measure (always
+% between 0 and 1), uses the same args as the error estimation routine
+B = 1000;
+[Dev pDev DevSim converged] = PAL_PFML_GoodnessOfFit(StimLevels, NumPos, ...
+    OutOfNum, paramsValues, paramsFree, B, PF);
+
+%% Putting it all together
+
