@@ -61,5 +61,29 @@ B = 1000;
 [Dev pDev DevSim converged] = PAL_PFML_GoodnessOfFit(StimLevels, NumPos, ...
     OutOfNum, paramsValues, paramsFree, B, PF);
 
-%% Putting it all together
+% Cumulative Normal
+StimLevels = [0:.01:4];
+pcorrect = PAL_CumulativeNormal([2 1 .5 0], StimLevels);
+figure(4)
+plot(StimLevels, pcorrect);
+hold on
+% Logistic function
+pcorrect = PAL_Logistic([2 1 .5 0], StimLevels);
+plot(StimLevels, pcorrect);
+hold on
+% Weibull
+pcorrect = PAL_Weibull([2 1 .5 0], StimLevels);
+plot(StimLevels, pcorrect);
+hold on
+% Gumbel (also Log-Weibell
+pcorrect = PAL_Gumbel([2 1 .5 0], StimLevels);
+plot(StimLevels, pcorrect);
+legend('CumNorm', 'Logistic', 'Weibell', 'Gumbel');
+
+% Finding the spread of a function (inverse of the slope)
+params = [2, 3, 0.5, 0.01];
+delta = 0.01;
+spread = PAL_spreadPF(params, delta, 'logistic'); %can replace logistic here with any function type
+
+% Reached page 85
 
